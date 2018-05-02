@@ -1,0 +1,44 @@
+@startuml
+
+actor User
+boundary "MainWindow" as GUI
+control "m_timer: Qtimer" as timer
+entity "ball: Ball" as ball1
+entity "retranslator: Ball" as ball2
+database "connection: db" as db
+
+
+db <- GUI: connectDB()
+db --> ball1: moveData x,y,dir
+db --> GUI: return
+User --> GUI : on_startButton_clicked()
+GUI-> ball1: run()
+ball1-> timer: start()
+ball1<-- timer: return
+ball1--> GUI : return
+timer --> ball1:moveBall() 
+ball1 --> ball2: moveData(int,int,int,int) 
+
+
+GUI -> ball2: getX(),getY(),getDir()
+ball2 -->GUI: return x,y,dir
+GUI -> GUI : paintEvent()
+
+User --> GUI : on_stopButton_clicked()
+GUI-> ball1: stop()
+ball1->timer:stop()
+timer -->ball1 : return
+ball1-->GUI: return
+GUI--> db: write(int,int,bool)
+
+
+User --> GUI : closeEvent()
+GUI-> ball1: stop()
+ball1->timer:stop()
+timer -->ball1 : return
+ball1-->GUI: return
+GUI--> db: write(int,int,bool)
+
+
+
+@enduml
